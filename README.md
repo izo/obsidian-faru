@@ -22,9 +22,45 @@ Faru est un système kanban git-native : chaque carte est un dossier dans `backl
 
 ## Installation
 
-1. Copier `main.js`, `manifest.json` et `styles.css` dans `.obsidian/plugins/obsidian-faru/`
-2. Activer le plugin dans **Paramètres → Plugins tiers**
-3. Cliquer sur l'icône kanban dans le ruban, ou lancer la commande **Open Faru Board**
+### 1. Compiler
+
+```bash
+git clone https://github.com/izo/obsidian-faru
+cd obsidian-faru
+npm install
+npm run build
+```
+
+Cela génère `main.js` à la racine du repo.
+
+### 2. Copier dans le vault
+
+```bash
+mkdir -p <vault>/.obsidian/plugins/obsidian-faru
+cp main.js manifest.json styles.css <vault>/.obsidian/plugins/obsidian-faru/
+```
+
+Remplacer `<vault>` par le chemin de ton vault Obsidian.
+
+### 3. Activer
+
+1. Ouvrir Obsidian → **Paramètres → Plugins tiers → Plugins installés**
+2. Activer **Faru**
+3. Cliquer sur l'icône kanban dans le ruban, ou `Ctrl+P` → **Open Faru Board**
+
+### Structure minimale du vault
+
+```
+<vault>/
+├── .obsidian/plugins/obsidian-faru/
+│   ├── main.js
+│   ├── manifest.json
+│   └── styles.css
+├── faru.config.json          ← optionnel
+└── backlog/
+    └── 2026-05-05-PRODUCT-MON-TICKET/
+        └── CARD.md
+```
 
 ---
 
@@ -93,10 +129,12 @@ Valeurs valides pour `status` : `todo`, `wip`, `done`.
 
 ```bash
 npm install
-npm run dev      # build en mode watch
+npm run dev      # build en mode watch (recompile à chaque sauvegarde)
 npm run build    # build de production
 npm run test     # tests unitaires (vitest)
 ```
+
+Pour itérer rapidement, installer le plugin communautaire [Hot Reload](https://github.com/pjeby/hot-reload) dans Obsidian : il recharge automatiquement le plugin dès que `main.js` change, sans redémarrer Obsidian.
 
 **Stack** : TypeScript strict · API Obsidian · DOM vanilla · esbuild · vitest  
 **Zéro dépendance externe** — uniquement le package `obsidian`.
