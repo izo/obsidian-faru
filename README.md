@@ -9,6 +9,7 @@ Faru est un système kanban git-native : chaque carte est un dossier dans `backl
 ## Fonctionnalités
 
 - **Vue kanban 3 colonnes** — Todo / WIP / Done
+- **Multi-backlog** — détecte automatiquement tous les backlogs Faru du vault et affiche un sélecteur
 - **Drag & drop** entre colonnes — met à jour `status` dans le frontmatter automatiquement
 - **Live reload** — la vue se rafraîchit à chaque modification du vault
 - **Clic sur une carte** — ouvre le fichier principal dans l'éditeur Obsidian
@@ -47,6 +48,32 @@ Lancer le plugin : icône kanban dans le ruban ou commande **Open Faru Board** (
 ---
 
 ## Configuration
+
+### Multi-backlog
+
+Le plugin détecte automatiquement tous les backlogs Faru présents dans votre vault (profondeur max 4 niveaux). Un sélecteur apparaît en haut du board dès qu'au moins deux backlogs sont trouvés.
+
+**Détection hybride** :
+- **Via config** — chaque `faru.config.json` trouvé dans le vault définit un backlog. Le `backlogDir` est résolu relativement au dossier du fichier.
+- **Par heuristique** — tout dossier contenant des sous-dossiers `YYYY-MM-DD-TYPE-*/CARD.md` est reconnu comme backlog, même sans config (affiché avec le suffixe `(auto)`).
+
+Exemple de structure avec plusieurs projets dans un même vault :
+
+```
+vault/
+├── project-alpha/
+│   ├── faru.config.json   ← backlog "project-alpha"
+│   └── backlog/
+├── project-beta/
+│   ├── faru.config.json   ← backlog "project-beta"
+│   └── backlog/
+└── old-project/
+    └── backlog/           ← détecté automatiquement (auto)
+```
+
+Le dernier backlog sélectionné est mémorisé et restauré à la prochaine ouverture.
+
+---
 
 ### `faru.config.json`
 
