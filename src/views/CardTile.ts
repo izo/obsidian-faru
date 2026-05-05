@@ -1,4 +1,4 @@
-import { App, TFile } from 'obsidian';
+import { App, MarkdownView, TFile } from 'obsidian';
 import { FaruCard } from '../types';
 
 export function createCardTile(app: App, card: FaruCard, categories: string[]): HTMLElement {
@@ -33,19 +33,40 @@ export function createCardTile(app: App, card: FaruCard, categories: string[]): 
     });
   }
 
-  el.addEventListener('click', () => {
-    app.workspace.openLinkText(card.filePath, '', false);
+  el.addEventListener('click', async (e) => {
+    await openCardFile(app, card.filePath, e.metaKey || e.ctrlKey);
   });
 
   return el;
 }
 
-function openMilestonesFile(app: App, card: FaruCard): void {
-  const dir = card.folderPath;
-  const allFiles = app.vault.getFiles().filter(
-    (f: TFile) => f.path.startsWith(dir + '/') && f.name.endsWith('-milestones.md')
+async function openCardFile(app: App, filePath: string, newTab: boolean): Promise<void> {
+  const file = app.vault.getAbstractFileByPath(filePath);
+  if (!(file instanceof TFile)) return;
+
+  if (newTab) {
+    await app.workspace.getLeaf('tab').openFile(file);
+    return;
+  }
+
+  const existing = app.workspace.getLeavesOfType('markdown').find(
+    (leaf) => leaf.view instanceof MarkdownView && leaf.view.file?.path === filePath
   );
-  if (allFiles.length > 0) {
-    app.workspace.openLinkText(allFiles[0].path, '', false);
+  if (existing) {
+    app.workspace.setActiveLeaf(existing);
+    return;
+  }
+
+  const target = app.workspace.getMostRecentLeaf() ?? app.workspace.getLeaf('tab');
+  await target.openFile(file);
+}
+
+async function openMilestonesFile(app: App, card: FaruCard): Promise<void> {
+  const dir = card.folderPath;
+  const milestonesFile = app.vault
+    .getFiles()
+    .find((f: TFile) => f.path.startsWith(dir + '/') && f.name.endsWith('-milestones.md'));
+  if (milestonesFile) {
+    await openCardFile(app, milestonesFile.path, false);
   }
 }
