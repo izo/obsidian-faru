@@ -37,12 +37,16 @@ Placer ce fichier à la racine du vault (ou du projet) :
 ```json
 {
   "backlogDir": "./backlog",
-  "cardCategories": ["product", "ops", "bug"],
+  "port": 3333,
+  "cardCategories": ["feat", "fix", "qa", "docs"],
+  "autoSync": true,
   "archiveDoneAfterDays": 14
 }
 ```
 
-Si le fichier est absent, les valeurs ci-dessus sont utilisées par défaut.
+Si le fichier est absent, les valeurs par défaut sont : `backlogDir = "./backlog"`, `cardCategories = ["product", "ops", "bug"]`, `archiveDoneAfterDays = 14`.
+
+> Les champs `port` et `autoSync` sont propres au serveur Faru CLI — ils sont ignorés par le plugin Obsidian.
 
 ### Settings Obsidian
 
