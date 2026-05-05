@@ -84,10 +84,14 @@ If a card folder contains `PREFIX-milestones.md`, count headings matching `## PR
 ```json
 {
   "backlogDir": "./backlog",
-  "cardCategories": ["product", "ops", "bug"],
+  "port": 3333,
+  "cardCategories": ["feat", "fix", "qa", "docs"],
+  "autoSync": true,
   "archiveDoneAfterDays": 14
 }
 ```
+Fields read by the plugin: `backlogDir`, `cardCategories`, `archiveDoneAfterDays`.
+Fields ignored by the plugin (Faru CLI only): `port`, `autoSync`.
 Defaults when absent: `backlogDir = "./backlog"`, `cardCategories = ["product", "ops", "bug"]`, `archiveDoneAfterDays = 14`.
 
 **Card frontmatter** (`CARD.md`):
