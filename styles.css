@@ -1,0 +1,281 @@
+/* Badge colour palette — 6 distinct hues, theme-agnostic */
+:root {
+  --faru-cat-0: #4a90d9;
+  --faru-cat-1: #27ae60;
+  --faru-cat-2: #e74c3c;
+  --faru-cat-3: #e67e22;
+  --faru-cat-4: #8e44ad;
+  --faru-cat-5: #16a085;
+}
+
+/* ── Board layout ─────────────────────────────────────── */
+
+.faru-board {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  height: 100%;
+  overflow-x: auto;
+  padding: 8px;
+  box-sizing: border-box;
+  align-items: flex-start;
+}
+
+/* ── Column ───────────────────────────────────────────── */
+
+.faru-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 200px;
+  max-width: 340px;
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  padding: 8px;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.faru-column.drag-over {
+  outline: 2px solid var(--interactive-accent);
+}
+
+.faru-column-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 8px;
+  font-weight: 600;
+  color: var(--text-normal);
+  border-bottom: 1px solid var(--background-modifier-border);
+  margin-bottom: 6px;
+}
+
+.faru-column-title {
+  flex: 1;
+  font-size: 0.95em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.faru-column-count {
+  font-size: 0.8em;
+  background-color: var(--background-modifier-border);
+  color: var(--text-muted);
+  border-radius: 10px;
+  padding: 1px 7px;
+}
+
+.faru-column-add {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1em;
+  color: var(--text-muted);
+  padding: 0 4px;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.faru-column-add:hover {
+  color: var(--interactive-accent);
+  background-color: var(--background-modifier-hover);
+}
+
+/* ── Card ─────────────────────────────────────────────── */
+
+.faru-card {
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  cursor: grab;
+  transition: box-shadow 0.15s ease;
+}
+
+.faru-card:hover {
+  box-shadow: 0 2px 8px var(--background-modifier-box-shadow);
+}
+
+.faru-card:active {
+  cursor: grabbing;
+}
+
+.faru-card-title {
+  font-weight: 600;
+  font-size: 0.9em;
+  color: var(--text-normal);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.faru-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+
+/* ── Badges ───────────────────────────────────────────── */
+
+.faru-badge-type,
+.faru-badge-assignee,
+.faru-badge-milestone {
+  font-size: 0.75em;
+  border-radius: 10px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.faru-badge-type {
+  background-color: var(--badge-color, var(--faru-cat-0));
+  color: #fff;
+  font-weight: 500;
+}
+
+.faru-badge-assignee {
+  color: var(--text-muted);
+  background-color: var(--background-modifier-border);
+}
+
+.faru-badge-milestone {
+  color: var(--text-accent);
+  background-color: var(--background-modifier-border);
+  cursor: pointer;
+}
+
+.faru-badge-milestone:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+/* ── Filter bar ───────────────────────────────────────── */
+
+.faru-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 8px 10px;
+}
+
+.faru-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.faru-filter-label {
+  font-size: 0.75em;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.faru-filter-select {
+  font-size: 0.82em;
+  background-color: var(--background-secondary);
+  color: var(--text-normal);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  padding: 2px 4px;
+  min-width: 90px;
+  max-height: 72px;
+}
+
+/* ── Empty state ──────────────────────────────────────── */
+
+.faru-empty-state {
+  padding: 16px;
+  color: var(--text-muted);
+  font-size: 0.9em;
+  text-align: center;
+}
+
+.faru-empty-state button {
+  margin-top: 8px;
+  cursor: pointer;
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 14px;
+}
+
+/* ── Create card modal ────────────────────────────────── */
+
+.faru-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.faru-modal {
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.faru-modal h3 {
+  margin: 0 0 4px;
+  color: var(--text-normal);
+}
+
+.faru-modal-input,
+.faru-modal-select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  font-size: 0.9em;
+  box-sizing: border-box;
+}
+
+.faru-modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.faru-modal-actions button {
+  padding: 6px 14px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  cursor: pointer;
+  background: var(--background-secondary);
+  color: var(--text-normal);
+}
+
+.faru-modal-primary {
+  background-color: var(--interactive-accent) !important;
+  color: var(--text-on-accent) !important;
+  border-color: var(--interactive-accent) !important;
+}
+
+/* ── Mobile ───────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .faru-board {
+    flex-direction: column;
+    overflow-x: unset;
+    overflow-y: auto;
+  }
+
+  .faru-column {
+    max-width: 100%;
+    min-width: unset;
+  }
+}
