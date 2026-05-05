@@ -128,7 +128,7 @@ Invalid `status` values are treated as `todo`. Cards with unparseable frontmatte
 
 ## Tests
 
-Unit tests use **vitest** and cover `parser.ts` (backlog scanning, primary file resolution, milestone calculation), `actions/moveCard.ts` (frontmatter update with mocked vault), and `actions/createCard.ts` (folder naming convention). Manual test checklist is in `CDC.txt` § 10.
+Unit tests use **vitest** and cover `parser.ts` (backlog scanning, primary file resolution, milestone calculation), `actions/moveCard.ts` (frontmatter update with mocked vault), and `actions/createCard.ts` (folder naming convention).
 
 ## Development state
 
