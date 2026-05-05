@@ -110,17 +110,6 @@ prefixes:
 
 ## Todo
 
-- [ ] #FEAT-005 [P1] Refonte filter bar en pill-toggles #src/views/FilterBar.ts #effort-m
-
-  **Source** : Audit DA Agathe 2026-05-05
-  **Backlog card** : `backlog/2026-05-05-FEAT-FILTER-PILLS/`
-
-  **Scope** :
-  - [ ] Remplacer `<select multiple>` par rangée de pills
-  - [ ] Cohérence visuelle pills ↔ badges des cartes (réutiliser palette `--faru-cat-*`)
-  - [ ] Compactage de la barre (gain vertical)
-  - [ ] Accessibilité : `aria-pressed`, navigation clavier
-
 - [ ] #FEAT-002 [P1] Vue archive — cartes done archivées #src/views/BoardView.ts #effort-m
 
   **Zone** : `src/views/BoardView.ts` + `src/parser.ts`
@@ -196,6 +185,7 @@ prefixes:
 - [x] #DEPLOY-001 Soumission Obsidian Community Plugins — PR #12559 ouverte <!--done:2026-05-05-->
 - [x] #FEAT-004 [P0] Refonte densité & lisibilité des cartes (typo, line-clamp, badge conditionnel, empty states) <!--done:2026-05-05-->
 - [x] #FEAT-001 [P1] Bannière weekly-goal.md au-dessus du board <!--done:2026-05-05-->
+- [x] #FEAT-005 [P1] Refonte filter bar en pill-toggles (cohérence badges, a11y) <!--done:2026-05-05-->
 
 ## Archive
 

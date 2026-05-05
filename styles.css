@@ -303,31 +303,50 @@
 .faru-filter-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 6px 8px 10px;
+  gap: 6px 12px;
+  padding: 6px 8px;
+  align-items: center;
 }
 
-.faru-filter-group {
+.faru-filter-pills {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.faru-filter-label {
-  font-size: 0.75em;
-  color: var(--text-muted);
+.faru-filter-pill {
+  font-size: 0.78em;
   font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 3px 10px;
+  background-color: var(--background-modifier-border);
+  color: var(--text-muted);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  line-height: 1.4;
+  transition: background-color 0.1s ease, color 0.1s ease;
 }
 
-.faru-filter-select {
-  font-size: 0.82em;
-  background-color: var(--background-secondary);
+.faru-filter-pill:hover {
   color: var(--text-normal);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
-  padding: 2px 4px;
-  min-width: 90px;
-  max-height: 72px;
+  background-color: var(--background-modifier-hover);
+}
+
+.faru-filter-pill[aria-pressed="true"] {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.faru-filter-pill-type[aria-pressed="true"] {
+  background-color: var(--badge-color, var(--interactive-accent));
+  color: #fff;
+}
+
+.faru-filter-pill:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
 }
 
 /* ── Empty state ──────────────────────────────────────── */

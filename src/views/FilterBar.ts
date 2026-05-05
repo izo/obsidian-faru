@@ -12,50 +12,72 @@ export function createFilterBar(
   const bar = document.createElement('div');
   bar.className = 'faru-filter-bar';
 
-  bar.appendChild(buildSelect('Type', categories, current.types, (selected) => {
-    onChange({ ...current, types: selected });
-    current = { ...current, types: selected };
-  }));
+  bar.appendChild(
+    buildPillGroup('Type', 'type', categories, current.types, categories, (selected) => {
+      current = { ...current, types: selected };
+      onChange(current);
+    })
+  );
 
-  bar.appendChild(buildSelect('Assignee', assignees, current.assignees, (selected) => {
-    onChange({ ...current, assignees: selected });
-    current = { ...current, assignees: selected };
-  }));
+  if (assignees.length > 0) {
+    bar.appendChild(
+      buildPillGroup('Assignee', 'assignee', assignees, current.assignees, [], (selected) => {
+        current = { ...current, assignees: selected };
+        onChange(current);
+      })
+    );
+  }
 
   return bar;
 }
 
-function buildSelect(
-  label: string,
+function buildPillGroup(
+  ariaLabel: string,
+  variant: 'type' | 'assignee',
   options: string[],
   selected: string[],
+  categories: string[],
   onChange: (selected: string[]) => void
 ): HTMLElement {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'faru-filter-group';
+  const group = document.createElement('div');
+  group.className = 'faru-filter-pills';
+  group.setAttribute('role', 'group');
+  group.setAttribute('aria-label', `Filtre ${ariaLabel}`);
 
-  const lbl = document.createElement('label');
-  lbl.textContent = label;
-  lbl.className = 'faru-filter-label';
-  wrapper.appendChild(lbl);
-
-  const select = document.createElement('select');
-  select.multiple = true;
-  select.className = 'faru-filter-select';
+  let active = [...selected];
 
   for (const opt of options) {
-    const option = document.createElement('option');
-    option.value = opt;
-    option.textContent = opt;
-    option.selected = selected.includes(opt);
-    select.appendChild(option);
+    const pill = document.createElement('button');
+    pill.type = 'button';
+    pill.className = `faru-filter-pill faru-filter-pill-${variant}`;
+    pill.textContent = variant === 'assignee' ? `@${opt}` : opt;
+
+    const isActive = active.includes(opt);
+    pill.setAttribute('aria-pressed', String(isActive));
+
+    if (variant === 'type') {
+      const idx = (categories.indexOf(opt) + categories.length) % Math.max(categories.length, 1);
+      pill.style.setProperty('--badge-color', `var(--faru-cat-${idx % 6})`);
+    }
+
+    const toggle = () => {
+      const idx = active.indexOf(opt);
+      if (idx === -1) active.push(opt);
+      else active.splice(idx, 1);
+      pill.setAttribute('aria-pressed', String(active.includes(opt)));
+      onChange([...active]);
+    };
+
+    pill.addEventListener('click', toggle);
+    pill.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+
+    group.appendChild(pill);
   }
 
-  select.addEventListener('change', () => {
-    const values = Array.from(select.selectedOptions).map((o) => o.value);
-    onChange(values);
-  });
-
-  wrapper.appendChild(select);
-  return wrapper;
+  return group;
 }

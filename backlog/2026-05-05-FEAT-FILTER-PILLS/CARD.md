@@ -1,10 +1,11 @@
 ---
 title: Refonte de la barre de filtres en pill-toggles
 type: feat
-status: todo
+status: done
 assigned: mathieu
 created: 2026-05-05
 edited: 2026-05-05
+completed: 2026-05-05
 description: Remplacer les <select multiple> natifs par des pill-toggles cohérents avec le vocabulaire badge déjà établi.
 links:
   - src/views/FilterBar.ts
