@@ -1,0 +1,7 @@
+{
+  "backlogDir": "./backlog",
+  "port": 3333,
+  "cardCategories": ["feat", "fix", "qa", "docs"],
+  "autoSync": true,
+  "archiveDoneAfterDays": 14
+}
