@@ -129,3 +129,10 @@ Invalid `status` values are treated as `todo`. Cards with unparseable frontmatte
 ## Tests
 
 Unit tests use **vitest** and cover `parser.ts` (backlog scanning, primary file resolution, milestone calculation), `actions/moveCard.ts` (frontmatter update with mocked vault), and `actions/createCard.ts` (folder naming convention). Manual test checklist is in `CDC.txt` § 10.
+
+## Development state
+
+- **P0 + P1** : fully implemented and tested (24 tests passing)
+- **P2 + quality** : tracked in `backlog/` (5 cards) and `docs/todo.md`
+- **Build artifacts** : `main.js` is gitignored — run `npm install && npm run build` after cloning
+- **Dogfooding** : this repo uses its own Faru backlog (`backlog/`, `faru.config.json`, `weekly-goal.md`) to track remaining work
