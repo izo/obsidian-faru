@@ -125,6 +125,17 @@ npm run test     # tests unitaires (vitest)
 
 ---
 
+## Crédits
+
+Ce plugin est une **interface tierce** pour [**Faru**](https://github.com/fluado/faru), le système kanban git-natif créé et maintenu par [@fluado](https://github.com/fluado). Tout le mérite de la convention de cartes (structure de dossiers, frontmatter YAML, milestones) revient au projet Faru — ce plugin se contente d'en offrir une visualisation native dans Obsidian.
+
+Si vous trouvez cette approche utile, soutenez le projet original :
+**→ https://github.com/fluado/faru**
+
+---
+
 ## Licence
 
-MIT
+MIT — voir [LICENSE](./LICENSE).
+
+Ce plugin est distribué sous licence MIT et n'est **pas affilié officiellement** à Faru ni à son équipe. La convention de cartes Faru reste la propriété intellectuelle de [fluado/faru](https://github.com/fluado/faru) et est utilisée ici dans le respect de sa licence d'origine.
