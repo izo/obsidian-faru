@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf } from 'obsidian';
+import { ItemView, TFile, WorkspaceLeaf } from 'obsidian';
 import { DiscoveredBacklog, FaruCard, FaruColumn, FaruConfig, FARU_DEFAULTS, FARU_VIEW_TYPE } from '../types';
 import { parseBacklog } from '../parser';
 import { moveCard } from '../actions/moveCard';
@@ -28,6 +28,7 @@ export class BoardView extends ItemView {
   private cards: FaruCard[] = [];
   private filters: FilterState = { types: [], assignees: [] };
   private debounceTimer: number | null = null;
+  private weeklyGoal: string | null = null;
 
   constructor(leaf: WorkspaceLeaf, plugin: FaruPlugin) {
     super(leaf);
@@ -68,6 +69,10 @@ export class BoardView extends ItemView {
     }
     this.plugin.faruConfig = this.config;
     this.cards = await parseBacklog(this.app, this.config);
+    const goalFile = this.app.vault.getAbstractFileByPath('weekly-goal.md');
+    this.weeklyGoal = goalFile instanceof TFile
+      ? await this.app.vault.cachedRead(goalFile)
+      : null;
     this.render();
   }
 
@@ -82,6 +87,10 @@ export class BoardView extends ItemView {
   private render(): void {
     const { contentEl } = this;
     contentEl.empty();
+
+    if (this.weeklyGoal) {
+      contentEl.appendChild(this.buildWeeklyGoalBanner());
+    }
 
     if (this.plugin.discoveredBacklogs.length >= 2) {
       contentEl.appendChild(this.buildBacklogSelector());
@@ -112,6 +121,35 @@ export class BoardView extends ItemView {
       const colCards = filtered.filter((c) => c.status === col.id);
       board.appendChild(this.buildColumn(col, colCards, filteredAssignees));
     }
+  }
+
+  private buildWeeklyGoalBanner(): HTMLElement {
+    const banner = document.createElement('div');
+    banner.className = 'faru-weekly-goal';
+    banner.setAttribute('role', 'button');
+    banner.setAttribute('tabindex', '0');
+    banner.setAttribute('aria-label', 'Objectif de la semaine — ouvrir weekly-goal.md');
+
+    banner.createEl('span', { cls: 'faru-weekly-goal-label', text: 'Objectif' });
+    banner.createEl('span', { cls: 'faru-weekly-goal-text', text: this.weeklyGoal!.trim() });
+
+    const openGoal = async (newTab: boolean) => {
+      const file = this.app.vault.getAbstractFileByPath('weekly-goal.md');
+      if (!(file instanceof TFile)) return;
+      if (newTab) {
+        await this.app.workspace.getLeaf('tab').openFile(file);
+        return;
+      }
+      const target = this.app.workspace.getMostRecentLeaf() ?? this.app.workspace.getLeaf('tab');
+      await target.openFile(file);
+    };
+
+    banner.addEventListener('click', (e) => openGoal(e.metaKey || e.ctrlKey));
+    banner.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') openGoal(false);
+    });
+
+    return banner;
   }
 
   private buildBacklogSelector(): HTMLElement {

@@ -1,7 +1,7 @@
 {
   "id": "obsidian-faru",
   "name": "Faru",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "minAppVersion": "1.4.0",
   "description": "Kanban board for Faru backlogs (https://github.com/fluado/faru).",
   "author": "Mathieu Drouet",

@@ -224,6 +224,45 @@
   outline-offset: 2px;
 }
 
+/* ── Weekly goal banner ───────────────────────────────── */
+
+.faru-weekly-goal {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 12px;
+  background-color: var(--background-secondary);
+  border-bottom: 1px solid var(--background-modifier-border);
+  cursor: pointer;
+}
+
+.faru-weekly-goal:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+.faru-weekly-goal:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: -2px;
+}
+
+.faru-weekly-goal-label {
+  font-size: 0.72em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-accent);
+  white-space: nowrap;
+}
+
+.faru-weekly-goal-text {
+  font-size: 0.88em;
+  color: var(--text-normal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
 /* ── Backlog selector ─────────────────────────────────── */
 
 .faru-backlog-bar {

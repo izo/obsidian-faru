@@ -166,7 +166,6 @@ prefixes:
 
 ## In Progress
 
-- [~] #FEAT-001 [P1] Bannière weekly-goal.md au-dessus du board #src/views/BoardView.ts #effort-m <!--started:2026-05-05-->
 
 ## Blocked
 
@@ -196,6 +195,7 @@ prefixes:
 - [x] #SETUP-002 Faru backlog dogfooding (faru.config.json + backlog/ + weekly-goal.md) <!--done:2026-05-05-->
 - [x] #DEPLOY-001 Soumission Obsidian Community Plugins — PR #12559 ouverte <!--done:2026-05-05-->
 - [x] #FEAT-004 [P0] Refonte densité & lisibilité des cartes (typo, line-clamp, badge conditionnel, empty states) <!--done:2026-05-05-->
+- [x] #FEAT-001 [P1] Bannière weekly-goal.md au-dessus du board <!--done:2026-05-05-->
 
 ## Archive
 

@@ -1,10 +1,11 @@
 ---
 title: Bannière weekly-goal
 type: feat
-status: wip
+status: done
 assigned: mathieu
 created: 2026-05-05
 edited: 2026-05-05
+completed: 2026-05-05
 description: Lire weekly-goal.md à la racine du vault et afficher en bannière au-dessus du board avec bouton d'édition inline.
 links:
   - src/views/BoardView.ts
