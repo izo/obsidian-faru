@@ -1,16 +1,6 @@
 import { App } from 'obsidian';
 import { FaruCard, FaruConfig } from '../types';
-
-function formatDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
-function yamlEscape(s: string): string {
-  return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-}
+import { formatDate } from '../utils';
 
 export function buildFolderName(date: string, type: string, title: string): string {
   const normalizedType = type.toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -30,21 +20,17 @@ export async function createCard(
   const filePath = `${folderPath}/CARD.md`;
 
   await app.vault.createFolder(folderPath);
+  const file = await app.vault.create(filePath, '');
 
-  const frontmatter = [
-    '---',
-    `title: "${yamlEscape(params.title)}"`,
-    `type: ${params.type.toLowerCase()}`,
-    'status: todo',
-    `assigned: ${params.assigned ?? ''}`,
-    `created: ${today}`,
-    `edited: ${today}`,
-    'description: ""',
-    '---',
-    '',
-  ].join('\n');
-
-  await app.vault.create(filePath, frontmatter);
+  await app.fileManager.processFrontMatter(file, (fm) => {
+    fm['title'] = params.title;
+    fm['type'] = params.type.toLowerCase();
+    fm['status'] = 'todo';
+    fm['assigned'] = params.assigned ?? '';
+    fm['created'] = today;
+    fm['edited'] = today;
+    fm['description'] = '';
+  });
 
   return {
     folderPath,

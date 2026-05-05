@@ -1,12 +1,6 @@
 import { App, TFile } from 'obsidian';
 import { FaruCard, FaruColumn } from '../types';
-
-function formatDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
+import { formatDate } from '../utils';
 
 export async function moveCard(app: App, card: FaruCard, newStatus: FaruColumn): Promise<void> {
   const file = app.vault.getAbstractFileByPath(card.filePath);

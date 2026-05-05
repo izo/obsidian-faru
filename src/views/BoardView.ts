@@ -18,6 +18,8 @@ const COLUMNS: { id: FaruColumn; label: string }[] = [
   { id: 'done', label: 'Done' },
 ];
 
+const DRAG_MIME = 'application/x-faru-card';
+
 export class BoardView extends ItemView {
   private plugin: FaruPlugin;
   private config: FaruConfig;
@@ -44,6 +46,7 @@ export class BoardView extends ItemView {
       window.clearTimeout(this.debounceTimer);
       this.debounceTimer = null;
     }
+    document.querySelector('.faru-move-menu')?.remove();
   }
 
   async refresh(): Promise<void> {
@@ -76,8 +79,7 @@ export class BoardView extends ItemView {
     );
     contentEl.appendChild(filterBar);
 
-    const backlogMissing = this.cards.length === 0;
-    if (backlogMissing) {
+    if (this.cards.length === 0) {
       this.renderEmptyState(contentEl);
     }
 
@@ -115,8 +117,17 @@ export class BoardView extends ItemView {
 
     for (const card of cards) {
       const tile = createCardTile(this.app, card, this.config.cardCategories);
+
+      const moveBtn = tile.createEl('button', { cls: 'faru-card-move', text: '⇄' });
+      moveBtn.setAttribute('aria-label', `Déplacer "${card.title}" vers une autre colonne`);
+      moveBtn.setAttribute('aria-haspopup', 'listbox');
+      moveBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.openMoveMenu(moveBtn, card, id);
+      });
+
       tile.addEventListener('dragstart', (e) => {
-        e.dataTransfer?.setData('text/plain', card.folderPath);
+        e.dataTransfer?.setData(DRAG_MIME, card.folderPath);
       });
       col.appendChild(tile);
     }
@@ -131,7 +142,7 @@ export class BoardView extends ItemView {
     col.addEventListener('drop', async (e) => {
       e.preventDefault();
       col.classList.remove('drag-over');
-      const folderPath = e.dataTransfer?.getData('text/plain');
+      const folderPath = e.dataTransfer?.getData(DRAG_MIME);
       if (!folderPath) return;
       const card = this.cards.find((c) => c.folderPath === folderPath);
       if (!card || card.status === id) return;
@@ -140,6 +151,38 @@ export class BoardView extends ItemView {
     });
 
     return col;
+  }
+
+  private openMoveMenu(anchor: HTMLElement, card: FaruCard, currentCol: FaruColumn): void {
+    document.querySelector('.faru-move-menu')?.remove();
+
+    const rect = anchor.getBoundingClientRect();
+    const menu = document.createElement('div');
+    menu.className = 'faru-move-menu';
+    menu.setAttribute('role', 'listbox');
+    menu.setAttribute('aria-label', 'Déplacer vers');
+    menu.style.top = `${rect.bottom + 4}px`;
+    menu.style.left = `${rect.left}px`;
+
+    for (const col of COLUMNS) {
+      if (col.id === currentCol) continue;
+      const opt = document.createElement('button');
+      opt.className = 'faru-move-option';
+      opt.setAttribute('role', 'option');
+      opt.textContent = col.label;
+      opt.addEventListener('click', async () => {
+        menu.remove();
+        await moveCard(this.app, card, col.id);
+        await this.refresh();
+      });
+      menu.appendChild(opt);
+    }
+
+    document.body.appendChild(menu);
+
+    setTimeout(() => {
+      document.addEventListener('click', () => menu.remove(), { once: true });
+    }, 0);
   }
 
   private applyFilters(cards: FaruCard[]): FaruCard[] {
@@ -180,6 +223,10 @@ export class BoardView extends ItemView {
 
     const cancelBtn = actions.createEl('button', { text: 'Annuler' });
     cancelBtn.addEventListener('click', () => modal.remove());
+
+    modal.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') modal.remove();
+    });
 
     const createBtn = actions.createEl('button', { text: 'Créer', cls: 'faru-modal-primary' });
     createBtn.addEventListener('click', async () => {
