@@ -110,17 +110,6 @@ prefixes:
 
 ## Todo
 
-- [ ] #FEAT-004 [P0] Refonte densité & lisibilité des cartes #src/views/CardTile.ts #effort-s
-
-  **Source** : Audit DA Agathe 2026-05-05
-  **Backlog card** : `backlog/2026-05-05-FEAT-CARD-DENSITY/`
-
-  **Quick wins** :
-  - [ ] Hiérarchie typo : titre `font-weight: 600`, badge `font-size: 0.72em`
-  - [ ] Fin de la troncature : `-webkit-line-clamp: 2` sur `.faru-card-title`
-  - [ ] Badge assignee conditionnel (masqué si un seul assignee dans la vue)
-  - [ ] Empty state pour colonnes vides (Todo/WIP/Done)
-
 - [ ] #FEAT-005 [P1] Refonte filter bar en pill-toggles #src/views/FilterBar.ts #effort-m
 
   **Source** : Audit DA Agathe 2026-05-05
@@ -206,6 +195,7 @@ prefixes:
 - [x] #FIX-001 4 bugs corrigés post code review <!--done:2026-05-05-->
 - [x] #SETUP-002 Faru backlog dogfooding (faru.config.json + backlog/ + weekly-goal.md) <!--done:2026-05-05-->
 - [x] #DEPLOY-001 Soumission Obsidian Community Plugins — PR #12559 ouverte <!--done:2026-05-05-->
+- [x] #FEAT-004 [P0] Refonte densité & lisibilité des cartes (typo, line-clamp, badge conditionnel, empty states) <!--done:2026-05-05-->
 
 ## Archive
 

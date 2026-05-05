@@ -14,10 +14,10 @@ interface FaruPlugin {
   switchBacklog(backlog: DiscoveredBacklog): Promise<void>;
 }
 
-const COLUMNS: { id: FaruColumn; label: string }[] = [
-  { id: 'todo', label: 'Todo' },
-  { id: 'wip', label: 'WIP' },
-  { id: 'done', label: 'Done' },
+const COLUMNS: { id: FaruColumn; label: string; emptyText: string }[] = [
+  { id: 'todo', label: 'Todo', emptyText: 'Aucune carte' },
+  { id: 'wip', label: 'WIP', emptyText: 'Rien en cours' },
+  { id: 'done', label: 'Done', emptyText: 'Aucune carte terminée' },
 ];
 
 const DRAG_MIME = 'application/x-faru-card';
@@ -102,11 +102,15 @@ export class BoardView extends ItemView {
       this.renderEmptyState(contentEl);
     }
 
+    const filteredAssignees = [
+      ...new Set(filtered.map((c) => c.assigned).filter(Boolean)),
+    ];
+
     const board = contentEl.createEl('div', { cls: 'faru-board' });
 
     for (const col of COLUMNS) {
       const colCards = filtered.filter((c) => c.status === col.id);
-      board.appendChild(this.buildColumn(col.id, col.label, colCards));
+      board.appendChild(this.buildColumn(col, colCards, filteredAssignees));
     }
   }
 
@@ -148,7 +152,12 @@ export class BoardView extends ItemView {
     });
   }
 
-  private buildColumn(id: FaruColumn, label: string, cards: FaruCard[]): HTMLElement {
+  private buildColumn(
+    column: { id: FaruColumn; label: string; emptyText: string },
+    cards: FaruCard[],
+    uniqueAssignees: string[]
+  ): HTMLElement {
+    const { id, label, emptyText } = column;
     const col = document.createElement('div');
     col.className = 'faru-column';
     col.dataset.column = id;
@@ -161,8 +170,12 @@ export class BoardView extends ItemView {
     addBtn.setAttribute('aria-label', `Créer une carte en ${label}`);
     addBtn.addEventListener('click', () => this.openCreateModal(id));
 
+    if (cards.length === 0) {
+      col.createEl('div', { cls: 'faru-column-empty', text: emptyText });
+    }
+
     for (const card of cards) {
-      const tile = createCardTile(this.app, card, this.config.cardCategories);
+      const tile = createCardTile(this.app, card, this.config.cardCategories, uniqueAssignees);
 
       const moveBtn = tile.createEl('button', { cls: 'faru-card-move', text: '⇄' });
       moveBtn.setAttribute('aria-label', `Déplacer "${card.title}" vers une autre colonne`);

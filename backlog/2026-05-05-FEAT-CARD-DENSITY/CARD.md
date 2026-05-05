@@ -1,10 +1,11 @@
 ---
 title: Refonte densité & lisibilité des cartes
 type: feat
-status: todo
+status: done
 assigned: mathieu
 created: 2026-05-05
 edited: 2026-05-05
+completed: 2026-05-05
 description: Quick wins UI suite audit Agathe — hiérarchie typo, fin de la troncature agressive, badge assignee conditionnel, empty states.
 links:
   - src/views/CardTile.ts

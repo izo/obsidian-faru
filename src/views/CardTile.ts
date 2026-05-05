@@ -1,7 +1,12 @@
 import { App, MarkdownView, TFile } from 'obsidian';
 import { FaruCard } from '../types';
 
-export function createCardTile(app: App, card: FaruCard, categories: string[]): HTMLElement {
+export function createCardTile(
+  app: App,
+  card: FaruCard,
+  categories: string[],
+  uniqueAssignees: string[] = []
+): HTMLElement {
   const el = document.createElement('div');
   el.className = 'faru-card';
   el.setAttribute('draggable', 'true');
@@ -17,7 +22,7 @@ export function createCardTile(app: App, card: FaruCard, categories: string[]): 
     badge.style.setProperty('--badge-color', `var(--faru-cat-${idx % 6})`);
   }
 
-  if (card.assigned) {
+  if (card.assigned && uniqueAssignees.length > 1) {
     meta.createEl('span', { cls: 'faru-badge-assignee', text: `@${card.assigned}` });
   }
 
