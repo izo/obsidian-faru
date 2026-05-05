@@ -53,7 +53,7 @@ describe('createCard', () => {
     const [filePath, content]: [string, string] = app.vault.create.mock.calls[0];
     expect(filePath).toBe(`${folderArg}/CARD.md`);
     expect(content).toContain('status: todo');
-    expect(content).toContain('title: OAuth Flow');
+    expect(content).toContain('title: "OAuth Flow"');
     expect(content).toContain('assigned: alice');
 
     expect(card.status).toBe('todo');

@@ -8,6 +8,10 @@ function formatDate(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+function yamlEscape(s: string): string {
+  return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
 export function buildFolderName(date: string, type: string, title: string): string {
   const normalizedType = type.toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const normalizedTitle = title.toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -29,7 +33,7 @@ export async function createCard(
 
   const frontmatter = [
     '---',
-    `title: ${params.title}`,
+    `title: "${yamlEscape(params.title)}"`,
     `type: ${params.type.toLowerCase()}`,
     'status: todo',
     `assigned: ${params.assigned ?? ''}`,

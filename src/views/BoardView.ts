@@ -23,7 +23,7 @@ export class BoardView extends ItemView {
   private config: FaruConfig;
   private cards: FaruCard[] = [];
   private filters: FilterState = { types: [], assignees: [] };
-  private debounceTimer: ReturnType<typeof window.setTimeout> | null = null;
+  private debounceTimer: number | null = null;
 
   constructor(leaf: WorkspaceLeaf, plugin: FaruPlugin) {
     super(leaf);
@@ -37,6 +37,13 @@ export class BoardView extends ItemView {
 
   async onOpen(): Promise<void> {
     await this.refresh();
+  }
+
+  async onClose(): Promise<void> {
+    if (this.debounceTimer !== null) {
+      window.clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
   }
 
   async refresh(): Promise<void> {
