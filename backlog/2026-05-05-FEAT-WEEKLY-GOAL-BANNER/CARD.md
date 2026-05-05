@@ -1,7 +1,7 @@
 ---
 title: Bannière weekly-goal
 type: feat
-status: todo
+status: wip
 assigned: mathieu
 created: 2026-05-05
 edited: 2026-05-05
