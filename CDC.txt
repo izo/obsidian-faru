@@ -1,0 +1,371 @@
+# CDC — obsidian-faru
+
+Plugin Obsidian pour visualiser et piloter un backlog [Faru](https://github.com/fluado/faru) directement dans le vault.
+
+-----
+
+## 1. Contexte
+
+Faru est un kanban git-native. Les cartes sont des fichiers Markdown avec frontmatter YAML, organisés en dossiers dans un répertoire `backlog/`. Ce plugin transforme Obsidian en interface de pilotage Faru sans dépendre du serveur local `npx github:fluado/faru`.
+
+### Convention Faru
+
+```
+backlog/
+├── 2026-05-04-PRODUCT-OAUTH-LOGIN/
+│   ├── CARD.md
+│   ├── VX-milestones.md
+│   └── VX-1-report.md
+├── 2026-05-04-BUG-DASHBOARD-CRASH/
+│   └── CARD.md
+└── 2026-05-04-OPS-CI-PIPELINE/
+    └── CARD.md
+```
+
+### Frontmatter d’une carte
+
+```yaml
+---
+title: Implement OAuth flow
+type: product
+status: todo | wip | done
+assigned: alice
+created: 2026-05-04
+edited: 2026-05-04
+description: One-line summary.
+links:
+  - specs/oauth-design.md
+---
+```
+
+### Fichier de config
+
+```json
+// faru.config.json (racine du vault ou du projet)
+{
+  "backlogDir": "./backlog",
+  "cardCategories": ["product", "ops", "bug"],
+  "archiveDoneAfterDays": 14
+}
+```
+
+-----
+
+## 2. Périmètre
+
+### In scope (MVP)
+
+|#  |Fonctionnalité                                                              |Priorité|
+|---|----------------------------------------------------------------------------|--------|
+|F1 |Vue kanban 3 colonnes (Todo / WIP / Done)                                   |P0      |
+|F2 |Drag & drop entre colonnes (met à jour `status` dans le frontmatter)        |P0      |
+|F3 |Clic sur carte → ouvrir le `CARD.md` dans l’éditeur Obsidian                |P0      |
+|F4 |Lecture de `faru.config.json` pour résoudre `backlogDir` et `cardCategories`|P0      |
+|F5 |Live reload (réagir aux modifications du vault via `vault.on('modify')`)    |P0      |
+|F6 |Affichage du badge type (catégorie) et assignee sur chaque carte            |P1      |
+|F7 |Indicateur de progression milestones (`● 2/3`)                              |P1      |
+|F8 |Filtre par type et par assignee                                             |P1      |
+|F9 |Création de carte depuis le plugin (crée le dossier + `CARD.md`)            |P1      |
+|F10|Affichage et édition du `weekly-goal.md` en bannière                        |P2      |
+|F11|Vue archive (cartes `done` archivées)                                       |P2      |
+
+### Hors scope
+
+- Agent dispatch (Antigravity / CDP)
+- Dojo / kata scheduler
+- Git sync (délégué au plugin Obsidian Git)
+- Serveur HTTP Faru
+- Édition inline des champs depuis le kanban (hors drag & drop du status)
+
+-----
+
+## 3. Architecture technique
+
+### Stack
+
+- **Langage** : TypeScript strict
+- **Runtime** : API plugin Obsidian (`obsidian` package)
+- **Vue** : `ItemView` custom (pas de framework — vanilla DOM ou petit template engine)
+- **Build** : esbuild (standard Obsidian plugin)
+- **Aucune dépendance externe** sauf `obsidian` et les types associés
+
+### Structure du projet
+
+```
+obsidian-faru/
+├── src/
+│   ├── main.ts              # Plugin principal, enregistrement de la vue
+│   ├── settings.ts           # Tab settings + lecture faru.config.json
+│   ├── types.ts              # Interfaces FaruCard, FaruConfig, etc.
+│   ├── parser.ts             # Lecture backlog, parsing frontmatter, milestones
+│   ├── views/
+│   │   ├── BoardView.ts      # ItemView kanban (3 colonnes)
+│   │   ├── CardTile.ts       # Composant carte (titre, type badge, assignee, milestones)
+│   │   └── FilterBar.ts      # Barre de filtres type/assignee
+│   └── actions/
+│       ├── moveCard.ts       # Changement de status via processFrontMatter
+│       └── createCard.ts     # Création dossier + CARD.md
+├── styles.css
+├── manifest.json
+├── package.json
+├── tsconfig.json
+├── esbuild.config.mjs
+└── README.md
+```
+
+### Classe principale — `main.ts`
+
+```typescript
+export default class FaruPlugin extends Plugin {
+  settings: FaruSettings;
+
+  async onload() {
+    await this.loadSettings();
+    this.registerView(FARU_VIEW_TYPE, (leaf) => new BoardView(leaf, this));
+    this.addRibbonIcon('kanban', 'Faru Board', () => this.activateView());
+    this.addCommand({ id: 'open-faru-board', name: 'Open Faru Board', callback: () => this.activateView() });
+    this.addSettingTab(new FaruSettingTab(this.app, this));
+
+    // Live reload
+    this.registerEvent(this.app.vault.on('modify', (file) => this.onFileChange(file)));
+    this.registerEvent(this.app.vault.on('create', (file) => this.onFileChange(file)));
+    this.registerEvent(this.app.vault.on('delete', (file) => this.onFileChange(file)));
+    this.registerEvent(this.app.vault.on('rename', (file) => this.onFileChange(file)));
+  }
+}
+```
+
+-----
+
+## 4. Modèle de données
+
+### `types.ts`
+
+```typescript
+interface FaruConfig {
+  backlogDir: string;
+  cardCategories: string[];
+  archiveDoneAfterDays?: number;
+}
+
+interface FaruCard {
+  folderPath: string;       // backlog/2026-05-04-PRODUCT-OAUTH-LOGIN
+  filePath: string;         // chemin vers le .md principal
+  title: string;
+  type: string;
+  status: 'todo' | 'wip' | 'done';
+  assigned: string;
+  created: string;
+  edited?: string;
+  description: string;
+  links?: string[];
+  milestones?: {
+    total: number;
+    completed: number;
+  };
+}
+
+type FaruColumn = 'todo' | 'wip' | 'done';
+```
+
+-----
+
+## 5. Logique métier
+
+### 5.1 Résolution du fichier principal (priorité Faru)
+
+Pour chaque dossier carte, sélectionner le `.md` principal dans cet ordre :
+
+1. `*-milestones.md`
+1. `CARD.md`
+1. `*-spec.md`
+1. Premier `.md` trouvé
+
+### 5.2 Calcul des milestones
+
+Dans un dossier carte contenant `PREFIX-milestones.md` :
+
+1. Extraire les headings `## PREFIX-N:` → total de milestones
+1. Chercher les fichiers `PREFIX-N-report.md` correspondants → milestones complétées
+1. Ratio `completed / total`
+
+### 5.3 Changement de status (drag & drop)
+
+```typescript
+async function moveCard(app: App, card: FaruCard, newStatus: FaruColumn): Promise<void> {
+  const file = app.vault.getAbstractFileByPath(card.filePath);
+  if (file instanceof TFile) {
+    await app.fileManager.processFrontMatter(file, (fm) => {
+      fm.status = newStatus;
+      fm.edited = formatDate(new Date()); // YYYY-MM-DD
+    });
+  }
+}
+```
+
+### 5.4 Création de carte
+
+1. Générer le nom du dossier : `YYYY-MM-DD-TYPE-TITLE` (type uppercase, titre uppercase avec tirets)
+1. Créer le dossier dans `backlogDir`
+1. Créer `CARD.md` avec le frontmatter par défaut (status: `todo`, assigned: valeur des settings ou vide)
+1. Rafraîchir la vue
+
+### 5.5 Filtrage
+
+- Par `type` : multi-select parmi les `cardCategories` du config
+- Par `assigned` : liste déduite dynamiquement des cartes existantes
+
+-----
+
+## 6. Vue kanban — `BoardView.ts`
+
+### Layout
+
+```
+┌─────────────────────────────────────────────────────┐
+│ [weekly-goal.md content]                    [edit]   │  ← bannière (P2)
+├─────────────────────────────────────────────────────┤
+│ [filter: type ▾] [filter: assigned ▾]               │  ← FilterBar (P1)
+├────────────────┬────────────────┬────────────────────┤
+│ TODO (3)       │ WIP (1)        │ DONE (2)           │
+│                │                │                    │
+│ ┌────────────┐ │ ┌────────────┐ │ ┌────────────────┐ │
+│ │ OAuth flow │ │ │ CI Pipeline│ │ │ Fix crash      │ │
+│ │ product    │ │ │ ops        │ │ │ bug            │ │
+│ │ @alice     │ │ │ @bob       │ │ │ @alice         │ │
+│ │ ● 2/3      │ │ └────────────┘ │ │ 2026-04-28     │ │
+│ └────────────┘ │                │ └────────────────┘ │
+│                │                │                    │
+│ ┌────────────┐ │                │ ┌────────────────┐ │
+│ │ ...        │ │                │ │ ...            │ │
+│ └────────────┘ │                │ └────────────────┘ │
+└────────────────┴────────────────┴────────────────────┘
+```
+
+### Interactions
+
+|Action                   |Comportement                                             |
+|-------------------------|---------------------------------------------------------|
+|Drag carte entre colonnes|`moveCard()` → met à jour frontmatter `status` + `edited`|
+|Clic sur carte           |`app.workspace.openLinkText(card.filePath, '', false)`   |
+|Clic badge milestone     |Ouvre le fichier `*-milestones.md`                       |
+|Bouton `+` (P1)          |Modal de création de carte                               |
+
+### Drag & drop
+
+Utiliser l’API native HTML5 Drag and Drop (pas de lib externe) :
+
+- `draggable="true"` sur les `.faru-card`
+- `dragstart` → stocker `card.folderPath` dans `dataTransfer`
+- `dragover` sur les colonnes → `preventDefault()` + classe CSS `.drag-over`
+- `drop` → lire le `folderPath`, appeler `moveCard()`, rafraîchir
+
+-----
+
+## 7. Settings
+
+### Tab settings Obsidian
+
+|Paramètre        |Type  |Défaut            |Description                                  |
+|-----------------|------|------------------|---------------------------------------------|
+|`configPath`     |string|`faru.config.json`|Chemin vers le fichier de config Faru        |
+|`defaultAssignee`|string|`""`              |Assignee par défaut pour les nouvelles cartes|
+
+Le plugin lit `faru.config.json` au chargement et en extrait `backlogDir`, `cardCategories`, `archiveDoneAfterDays`. Si le fichier n’existe pas, utiliser les valeurs par défaut (`./backlog`, `["product", "ops", "bug"]`, `14`).
+
+-----
+
+## 8. Styles — `styles.css`
+
+### Principes
+
+- Utiliser les variables CSS d’Obsidian (`--background-primary`, `--text-normal`, `--interactive-accent`, etc.) pour le thème clair/sombre
+- Aucune couleur codée en dur
+- Les badges `type` utilisent des couleurs distinctes par catégorie (générées via hash du nom de catégorie, ou palette fixe de 6 couleurs en CSS custom properties)
+
+### Classes CSS principales
+
+```
+.faru-board            → conteneur flex horizontal, gap 12px
+.faru-column           → flex vertical, flex: 1, min-width 200px
+.faru-column-header    → titre + compteur
+.faru-card             → border-radius 6px, padding 12px, cursor grab
+.faru-card.drag-over   → outline accent
+.faru-card-title       → font-weight 600
+.faru-card-meta        → flex row, gap 6px, font-size smaller
+.faru-badge-type       → pill colorée
+.faru-badge-assignee   → texte muted avec @
+.faru-badge-milestone  → ● ratio
+.faru-filter-bar       → flex row, gap 8px, padding-bottom 8px
+.faru-weekly-goal      → bannière top, editable
+```
+
+-----
+
+## 9. Gestion des erreurs
+
+|Cas                             |Comportement                                                     |
+|--------------------------------|-----------------------------------------------------------------|
+|`faru.config.json` absent       |Warning dans la console + valeurs par défaut                     |
+|`backlogDir` n’existe pas       |Afficher un message dans la vue avec bouton pour créer le dossier|
+|Carte sans frontmatter valide   |Ignorer silencieusement, log en console                          |
+|Frontmatter `status` invalide   |Traiter comme `todo`                                             |
+|Dossier carte vide (aucun `.md`)|Ignorer                                                          |
+
+-----
+
+## 10. Tests
+
+### Tests unitaires (vitest)
+
+- `parser.ts` : parsing du backlog, résolution du fichier principal, calcul milestones
+- `types.ts` : validation des interfaces
+- `actions/moveCard.ts` : vérification de la mise à jour du frontmatter (mock vault)
+- `actions/createCard.ts` : convention de nommage des dossiers
+
+### Tests manuels
+
+1. Ouvrir le plugin avec un backlog Faru existant → les cartes apparaissent dans les bonnes colonnes
+1. Drag d’une carte de Todo → WIP → vérifier que `CARD.md` a `status: wip` et `edited` mis à jour
+1. Modifier un `CARD.md` dans l’éditeur → la vue se rafraîchit
+1. Créer une carte via le plugin → le dossier et le fichier respectent la convention Faru
+1. Supprimer un dossier carte → la vue se met à jour
+1. Basculer thème clair/sombre → le board reste lisible
+
+-----
+
+## 11. Livrables
+
+```
+obsidian-faru/
+├── main.js          # bundle esbuild
+├── manifest.json    # id: "obsidian-faru", minAppVersion: "1.4.0"
+├── styles.css
+└── README.md
+```
+
+### `manifest.json`
+
+```json
+{
+  "id": "obsidian-faru",
+  "name": "Faru",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "Git-native kanban board for Faru backlogs.",
+  "author": "izo",
+  "isDesktopOnly": false
+}
+```
+
+-----
+
+## 12. Contraintes d’implémentation
+
+1. **Zéro dépendance externe** — uniquement `obsidian` et ses types
+1. **Vanilla DOM** — pas de React, pas de Svelte, pas de framework UI
+1. **`processFrontMatter()`** — seule méthode autorisée pour modifier le frontmatter (pas de regex, pas de string replace)
+1. **Debounce le reload** — les événements vault peuvent être très fréquents, debounce 300ms minimum
+1. **Ne jamais écrire hors du `backlogDir`** — sauf `weekly-goal.md` à la racine
+1. **Respecter strictement la convention de nommage Faru** pour la création de cartes
+1. **Compatibilité mobile** — la vue doit fonctionner sur Obsidian Mobile (colonnes empilées verticalement en dessous de 600px)
