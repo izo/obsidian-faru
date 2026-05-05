@@ -1,0 +1,20 @@
+{
+  "name": "obsidian-faru",
+  "version": "0.1.0",
+  "description": "Git-native kanban board for Faru backlogs.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc --noEmit --skipLibCheck && node esbuild.config.mjs production",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "builtin-modules": "3.3.0",
+    "esbuild": "0.21.0",
+    "obsidian": "latest",
+    "tslib": "2.6.0",
+    "typescript": "5.3.3",
+    "vitest": "^1.6.0"
+  }
+}
