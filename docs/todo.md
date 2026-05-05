@@ -110,6 +110,28 @@ prefixes:
 
 ## Todo
 
+- [ ] #FEAT-004 [P0] Refonte densité & lisibilité des cartes #src/views/CardTile.ts #effort-s
+
+  **Source** : Audit DA Agathe 2026-05-05
+  **Backlog card** : `backlog/2026-05-05-FEAT-CARD-DENSITY/`
+
+  **Quick wins** :
+  - [ ] Hiérarchie typo : titre `font-weight: 600`, badge `font-size: 0.72em`
+  - [ ] Fin de la troncature : `-webkit-line-clamp: 2` sur `.faru-card-title`
+  - [ ] Badge assignee conditionnel (masqué si un seul assignee dans la vue)
+  - [ ] Empty state pour colonnes vides (Todo/WIP/Done)
+
+- [ ] #FEAT-005 [P1] Refonte filter bar en pill-toggles #src/views/FilterBar.ts #effort-m
+
+  **Source** : Audit DA Agathe 2026-05-05
+  **Backlog card** : `backlog/2026-05-05-FEAT-FILTER-PILLS/`
+
+  **Scope** :
+  - [ ] Remplacer `<select multiple>` par rangée de pills
+  - [ ] Cohérence visuelle pills ↔ badges des cartes (réutiliser palette `--faru-cat-*`)
+  - [ ] Compactage de la barre (gain vertical)
+  - [ ] Accessibilité : `aria-pressed`, navigation clavier
+
 - [ ] #FEAT-002 [P1] Vue archive — cartes done archivées #src/views/BoardView.ts #effort-m
 
   **Zone** : `src/views/BoardView.ts` + `src/parser.ts`
