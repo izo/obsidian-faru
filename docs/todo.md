@@ -27,18 +27,6 @@ prefixes:
 
 ## Todo
 
-- [ ] #FEAT-001 [P1] Bannière weekly-goal.md au-dessus du board #src/views/BoardView.ts #effort-m
-
-  **Zone** : `src/views/BoardView.ts` + `styles.css`
-  **Effort** : M (2-4h)
-
-  **Checklist** :
-  - [ ] Lire `weekly-goal.md` via `vault.read()` si présent
-  - [ ] Afficher en bannière `.faru-weekly-goal` au-dessus des colonnes
-  - [ ] Bouton edit → ouvre le fichier dans un leaf Obsidian
-  - [ ] Styles `.faru-weekly-goal` (padding, border-left accent)
-  - [ ] Si absent → bannière masquée silencieusement
-
 - [ ] #FEAT-002 [P1] Vue archive — cartes done archivées #src/views/BoardView.ts #effort-m
 
   **Zone** : `src/views/BoardView.ts` + `src/parser.ts`
@@ -83,6 +71,8 @@ prefixes:
   - [ ] Test Obsidian Mobile iOS/Android : colonnes empilées, drag & drop
 
 ## In Progress
+
+- [~] #FEAT-001 [P1] Bannière weekly-goal.md au-dessus du board #src/views/BoardView.ts #effort-m <!--started:2026-05-05-->
 
 ## Blocked
 
