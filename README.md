@@ -22,9 +22,25 @@ Faru est un système kanban git-native : chaque carte est un dossier dans `backl
 
 ## Installation
 
-1. Copier `main.js`, `manifest.json` et `styles.css` dans `.obsidian/plugins/obsidian-faru/`
-2. Activer le plugin dans **Paramètres → Plugins tiers**
-3. Cliquer sur l'icône kanban dans le ruban, ou lancer la commande **Open Faru Board**
+### Via BRAT (recommandé)
+
+[BRAT](https://github.com/TfTHacker/obsidian42-brat) permet d'installer et de mettre à jour le plugin automatiquement depuis GitHub.
+
+1. Installer **BRAT** depuis **Paramètres → Plugins communautaires** (rechercher "BRAT")
+2. Dans BRAT → **Add Beta Plugin** → entrer `izo/obsidian-faru`
+3. Activer le plugin dans **Paramètres → Plugins tiers**
+
+Les mises à jour sont récupérées automatiquement à chaque nouvelle release.
+
+### Manuellement
+
+1. Télécharger `main.js`, `manifest.json` et `styles.css` depuis la [dernière release](https://github.com/izo/obsidian-faru/releases/latest)
+2. Les copier dans `.obsidian/plugins/obsidian-faru/`
+3. Activer le plugin dans **Paramètres → Plugins tiers**
+
+---
+
+Lancer le plugin : icône kanban dans le ruban ou commande **Open Faru Board** (`Ctrl/Cmd+P`).
 
 ---
 

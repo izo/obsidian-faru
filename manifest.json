@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "minAppVersion": "1.4.0",
   "description": "Git-native kanban board for Faru backlogs.",
-  "author": "izo",
+  "author": "Mathieu Drouet",
+  "authorUrl": "https://github.com/izo",
   "isDesktopOnly": false
 }
