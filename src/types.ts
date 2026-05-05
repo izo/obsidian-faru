@@ -23,6 +23,13 @@ export type FaruColumn = 'todo' | 'wip' | 'done';
 export interface FaruSettings {
   configPath: string;
   defaultAssignee: string;
+  activeBacklogId: string;
+}
+
+export interface DiscoveredBacklog {
+  configPath: string;   // '' si détecté par heuristique
+  backlogDir: string;   // chemin résolu relatif à la racine du vault
+  displayName: string;
 }
 
 export const FARU_VIEW_TYPE = 'faru-board';

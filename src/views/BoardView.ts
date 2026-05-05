@@ -1,5 +1,5 @@
 import { ItemView, WorkspaceLeaf } from 'obsidian';
-import { FaruCard, FaruColumn, FaruConfig, FARU_VIEW_TYPE } from '../types';
+import { DiscoveredBacklog, FaruCard, FaruColumn, FaruConfig, FARU_DEFAULTS, FARU_VIEW_TYPE } from '../types';
 import { parseBacklog } from '../parser';
 import { moveCard } from '../actions/moveCard';
 import { createCard } from '../actions/createCard';
@@ -8,8 +8,10 @@ import { createFilterBar, FilterState } from './FilterBar';
 import { loadFaruConfig } from '../settings';
 
 interface FaruPlugin {
-  settings: { configPath: string; defaultAssignee: string };
+  settings: { configPath: string; defaultAssignee: string; activeBacklogId: string };
   faruConfig: FaruConfig;
+  discoveredBacklogs: DiscoveredBacklog[];
+  switchBacklog(backlog: DiscoveredBacklog): Promise<void>;
 }
 
 const COLUMNS: { id: FaruColumn; label: string }[] = [
@@ -50,7 +52,20 @@ export class BoardView extends ItemView {
   }
 
   async refresh(): Promise<void> {
-    this.config = await loadFaruConfig(this.app, this.plugin.settings.configPath);
+    const active =
+      this.plugin.discoveredBacklogs.find(
+        (b) => b.backlogDir === this.plugin.settings.activeBacklogId
+      ) ?? this.plugin.discoveredBacklogs[0] ?? null;
+
+    if (active) {
+      const config = active.configPath
+        ? await loadFaruConfig(this.app, active.configPath)
+        : { ...FARU_DEFAULTS };
+      config.backlogDir = active.backlogDir;
+      this.config = config;
+    } else {
+      this.config = await loadFaruConfig(this.app, this.plugin.settings.configPath);
+    }
     this.plugin.faruConfig = this.config;
     this.cards = await parseBacklog(this.app, this.config);
     this.render();
@@ -67,6 +82,10 @@ export class BoardView extends ItemView {
   private render(): void {
     const { contentEl } = this;
     contentEl.empty();
+
+    if (this.plugin.discoveredBacklogs.length >= 2) {
+      contentEl.appendChild(this.buildBacklogSelector());
+    }
 
     const filtered = this.applyFilters(this.cards);
     const assignees = [...new Set(this.cards.map((c) => c.assigned).filter(Boolean))];
@@ -89,6 +108,33 @@ export class BoardView extends ItemView {
       const colCards = filtered.filter((c) => c.status === col.id);
       board.appendChild(this.buildColumn(col.id, col.label, colCards));
     }
+  }
+
+  private buildBacklogSelector(): HTMLElement {
+    const bar = document.createElement('div');
+    bar.className = 'faru-backlog-bar';
+    bar.createEl('span', { cls: 'faru-backlog-label', text: 'Backlog' });
+
+    const select = bar.createEl('select') as HTMLSelectElement;
+    select.className = 'faru-backlog-selector';
+    select.setAttribute('aria-label', 'Choisir un backlog');
+
+    for (const b of this.plugin.discoveredBacklogs) {
+      const opt = select.createEl('option') as HTMLOptionElement;
+      opt.value = b.backlogDir;
+      opt.textContent = b.displayName;
+      if (b.backlogDir === this.plugin.settings.activeBacklogId) opt.selected = true;
+    }
+
+    select.addEventListener('change', async () => {
+      const chosen = this.plugin.discoveredBacklogs.find((b) => b.backlogDir === select.value);
+      if (chosen) {
+        await this.plugin.switchBacklog(chosen);
+        await this.refresh();
+      }
+    });
+
+    return bar;
   }
 
   private renderEmptyState(container: HTMLElement): void {
