@@ -22,6 +22,8 @@ Faru est un système kanban git-native : chaque carte est un dossier dans `backl
 
 ## Installation
 
+> **Soumission en cours** — Le plugin est en attente de validation par l'équipe Obsidian ([PR #12559](https://github.com/obsidianmd/obsidian-releases/pull/12559)). En attendant, utilisez BRAT ou l'installation manuelle ci-dessous.
+
 ### Via BRAT (recommandé)
 
 [BRAT](https://github.com/TfTHacker/obsidian42-brat) permet d'installer et de mettre à jour le plugin automatiquement depuis GitHub.
